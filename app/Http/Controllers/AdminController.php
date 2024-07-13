@@ -47,9 +47,11 @@ class AdminController extends Controller
             'employee_code' => $request->employee_code,
             'employee_name' => $request->employee_name,
             'mobile_no' => $request->mobile_no,
-            'branch_ids' =>json_encode($request->branch),
+            'branch_ids' =>$request->branch,
             'password' => Hash::make($request->password),
         ]);
+
+        
 
        
         return redirect()->route('admin.addemployee_post')->with('success', 'Employee added successfully');
