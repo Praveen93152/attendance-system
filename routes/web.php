@@ -1,24 +1,30 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AgentController;
+use App\Http\Controllers\AuthController;
 
-// Route::get('/', function () {
-//     return view('user');
-// });
+////////////////////login and logout routes/////////////////////////////
+Route::get('/', [AuthController::class, 'login'])->name('login');
+// Route::post('/', [AgentController::class, 'create'])->name('login.post');
+// Route::logout('/logout', [AgentController::class, 'create'])->name('logout');
+
+
+
+
+//////////////////////user routes/////////////////////////////
+
 Route::get('/take-snapshot', function () {
     return view('snapshot');
 });
 
-Route::get('/', [AgentController::class, 'create'])->name('agents.create');
-Route::post('/agents/store', [AgentController::class, 'store'])->name('agents.store');
-Route::post('/agents/get-branches', [AgentController::class, 'getBranches'])->name('agents.getBranches');
 
 
 
 
+////////////////////admin routes////////////////////////////////
 
 Route::post('/get-branches', [UserController::class, 'getBranches']);
 Route::post('/get-employee', [UserController::class, 'getEmployee']);

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_locations', function (Blueprint $table) {
+        Schema::create('branches', function (Blueprint $table) {
             $table->id();
-            $table->string('company_name');
+            $table->string('client_name');
             $table->string('state');
             $table->string('branch');
-            $table->decimal('latitude', 10, 7);
-            $table->decimal('longitude', 10, 7);
+            $table->decimal('latitude', 10, 8); // Assuming latitude can have up to 10 digits including 8 decimal places
+            $table->decimal('longitude', 11, 8);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_locations');
+        Schema::dropIfExists('branches');
     }
 };
