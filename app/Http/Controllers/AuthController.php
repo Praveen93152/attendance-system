@@ -10,4 +10,12 @@ class AuthController extends Controller
         // dd('hi');
         return view('login');
     }
+
+    public function login_post(Request $request){
+
+    }
+
+
+
+
 }

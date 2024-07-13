@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+
+@include('layouts.header')
 <h2 class="text-center">Admin Panel</h2>
 <form id="adminSearchForm" class="row">
     <div class="row mb-4">

@@ -25,13 +25,12 @@ Route::get('/take-snapshot', function () {
 
 
 ////////////////////admin routes////////////////////////////////
+Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-Route::post('/get-branches', [UserController::class, 'getBranches']);
-Route::post('/get-employee', [UserController::class, 'getEmployee']);
-Route::post('/submit-attendance', [UserController::class, 'submitAttendance']);
 
-Route::get('/admin', function () {
-    return view('admin');
-});
-Route::post('/admin/search', [AdminController::class, 'search']);
+Route::get('/addemployee', [AdminController::class, 'addemployee'])->name('admin.addemployee');
+Route::post('/addemployee', [AdminController::class, 'store'])->name('admin.addemployee_post');
+Route::post('/getstates', [AdminController::class, 'getStates'])->name('admin.getstates');
+Route::post('/getbranch', [AdminController::class, 'getBranches'])->name('admin.getbranchs');
 
+Route::get('/addbranch', [AdminController::class, 'addbranch'])->name('admin.addbranch');
