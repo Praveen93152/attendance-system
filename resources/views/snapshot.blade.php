@@ -9,12 +9,11 @@
         <label class="form-label" for="branch">Branch<span class="text-danger">*</span></label>
         <select id="branch" name="branch" class="form-control">
             <option value="" disabled selected>select branch</option>
-            <option value="east delhi">east delhi</option>
-            <option value="west delhi">west delhi</option>
-            <option value="south delhi">south delhi</option>
-            <option value="shadera">shadera</option>
-            <option value="centerdelhi">centerdelhi</option>
-            <option value="other">other</option>
+
+            @foreach ( $branches as $branch)
+            <option value="{{$branch['client_name'].'_'.$branch['state'].'_'.$branch['branch'].'_'.$branch['latitude'].'_'.$branch['longitude']}}">{{$branch['branch']}}</option>
+            @endforeach
+            <option value="{{$branches[0]['client_name'].'_'.$branches[0]['state'].'_'.'Field'}}">Field</option>
         </select>
     </div>
 
@@ -43,6 +42,7 @@
         $(document).ready(function () {
 
             $('.loader').show();
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(success, error, {
                     enableHighAccuracy: true,
@@ -80,6 +80,8 @@
                     alert(`ERROR(${err.code}): ${err.message}`);
                 }
             }
+
+
 
             $('#photoInput').on('change', function () {
                 if (this.files && this.files[0]) {

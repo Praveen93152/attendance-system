@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-
-
     public function index()
     {
         $branch_ids = User::where('id', Auth::user()->id)->pluck('branch_ids')
@@ -23,6 +21,7 @@ class UserController extends Controller
             $branches = collect(); 
         }
         
+        // p($branches);
         return view('snapshot', ['branches' => $branches]);
     }
 
