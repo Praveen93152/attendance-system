@@ -9,7 +9,7 @@ use App\Http\Controllers\AuthController;
 ////////////////////login and logout routes/////////////////////////////
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/loginpost', [AuthController::class, 'login_post'])->name('login.post');
-// Route::logout('/logout', [AgentController::class, 'create'])->name('logout');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 

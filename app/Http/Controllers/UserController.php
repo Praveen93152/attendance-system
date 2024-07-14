@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserLocation;
+use Illuminate\Support\Facades\Request;
+use App\Models\Branch;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -13,7 +15,15 @@ class UserController extends Controller
 
     public function index()
     {
-        return view('snapshot');
+        $branch_ids = User::where('id', Auth::user()->id)->pluck('branch_ids')
+        ->first();
+        if (!is_null($branch_ids) && is_array($branch_ids)) {
+            $branches = Branch::whereIn('id', $branch_ids)->get()->toArray();
+        }else{
+            $branches = collect(); 
+        }
+        
+        return view('snapshot', ['branches' => $branches]);
     }
 
     public function submitAttendance(Request $request)

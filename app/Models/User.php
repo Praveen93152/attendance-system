@@ -27,7 +27,7 @@ class User extends Authenticatable
         'remember_token',
     ];
     protected $casts = [
-        'branch_id' => 'json', 
+        'branch_ids' => 'array', 
     ];
    
 }
