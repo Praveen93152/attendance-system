@@ -8,8 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-
-
+use function Pest\Laravel\json;
 
 class AdminController extends Controller
 {
@@ -42,12 +41,14 @@ class AdminController extends Controller
 
         // dd($request->branch);
 
+        // p($request->branch);
+        $branchIds = array_map('intval', $request->branch);//convert to intiger
        
         $user = User::create([
             'employee_code' => $request->employee_code,
             'employee_name' => $request->employee_name,
             'mobile_no' => $request->mobile_no,
-            'branch_ids' =>$request->branch,
+            'branch_ids' => json_encode($branchIds),
             'password' => Hash::make($request->password),
         ]);
 

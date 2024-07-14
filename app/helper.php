@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Helpers;
-
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 if (!function_exists('p')) {
     function p($data)
@@ -10,6 +9,7 @@ if (!function_exists('p')) {
         echo '<pre>';
         print_r($data);
         echo '</pre>';
+        exit;
     }
 }
 
@@ -34,7 +34,8 @@ if (!function_exists('saveEmployeeImage')) {
         // Generate the filename
         $timestamp = date('Ymd_His');
         $fileExtension = $image->getClientOriginalExtension();
-        $filename = "{$timestamp}_{$emp_id}_{$emp_name}." . $fileExtension;
+        $sanitizedEmpName = Str::slug($emp_name); // Sanitize the emp_name to avoid invalid characters
+        $filename = "{$timestamp}_{$emp_id}_{$sanitizedEmpName}." . $fileExtension;
 
         // Save the image
         $path = $image->storeAs($directory, $filename);
@@ -43,4 +44,3 @@ if (!function_exists('saveEmployeeImage')) {
         return Storage::url($path);
     }
 }
-
