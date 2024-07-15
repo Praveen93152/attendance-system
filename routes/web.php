@@ -17,6 +17,8 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 //////////////////////user routes/////////////////////////////
 
 Route::get('/snapshot', [UserController::class, 'index'])->name('snap');
+Route::post('/submitphoto', [UserController::class, 'submitphoto'])->name('storephoto');
+
 
 
 

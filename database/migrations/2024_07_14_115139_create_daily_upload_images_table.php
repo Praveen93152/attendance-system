@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('daily_upload_images', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_id');
+            $table->string('employee_id');
             $table->string('client');
             $table->string('state');
             $table->string('branch');

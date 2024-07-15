@@ -51,9 +51,6 @@ class AdminController extends Controller
             'branch_ids' => json_encode($branchIds),
             'password' => Hash::make($request->password),
         ]);
-
-        
-
        
         return redirect()->route('admin.addemployee_post')->with('success', 'Employee added successfully');
     }

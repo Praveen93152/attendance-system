@@ -10,15 +10,18 @@
         <select id="branch" name="branch" class="form-control">
             <option value="" disabled selected>select branch</option>
 
-            @foreach ( $branches as $branch)
-            <option value="{{$branch['client_name'].'_'.$branch['state'].'_'.$branch['branch'].'_'.$branch['latitude'].'_'.$branch['longitude']}}">{{$branch['branch']}}</option>
+            @foreach ($branches as $branch)
+                <option
+                    value="{{$branch['client_name'] . '_' . $branch['state'] . '_' . $branch['branch'] . '_' . $branch['latitude'] . '_' . $branch['longitude']}}">
+                    {{$branch['branch']}}
+                </option>
             @endforeach
-            <option value="{{$branches[0]['client_name'].'_'.$branches[0]['state'].'_'.'Field'}}">Field</option>
+            <option value="{{$branches[0]['client_name'] . '_' . $branches[0]['state'] . '_' . 'Field'}}">Field</option>
         </select>
     </div>
 
-    <div class="form-group mb-3 d-flex justify-content-center" id="cameraSection" style="display:none;">
-        <label for="photoInput" class="btn btn-secondary">
+    <div class="form-group mb-3 d-flex justify-content-center">
+        <label for="photoInput" id="takePhotoButton" class="btn btn-secondary" disabled>
             <i class="fa-solid fa-camera"></i> Take Photo
         </label>
         <input type="file" id="photoInput" name="photo" accept="image/*" capture="user" style="display:none;">
@@ -27,13 +30,13 @@
     <input type="hidden" id="latitude" name="latitude">
     <input type="hidden" id="longitude" name="longitude">
     <input type="hidden" id="place" name="place">
-    <input type="hidden" id="employeeId" name="employee_id" value="{{Auth::user()->employee_code}}">
-    <input type="hidden" id="employeeName" name="employee_name" value="{{Auth::user()->employee_name}}">
+    <input type="hidden" id="employeeId" name="employee_id" value="{{ Auth::user()->employee_code }}">
+    <input type="hidden" id="employeeName" name="employee_name" value="{{ Auth::user()->employee_name }}">
 
     <canvas id="photoCanvas" style="display:none;"></canvas>
     <div id="photoPreview" class="d-flex justify-content-center"></div>
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" id="submitButton" class="btn btn-primary mt-4" disabled>Submit</button>
 </form>
 @endsection
 
@@ -42,6 +45,9 @@
         $(document).ready(function () {
 
             $('.loader').show();
+
+            $('#takePhotoButton').hide();
+            // $('#submitButton').prop('disabled', false);
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(success, error, {
@@ -72,18 +78,24 @@
 
             function error(err) {
                 geolocationGranted = false;
+                $('.loader').hide();
                 if (err.code == 1) {
-                    $('.loader').hide();
                     alert("Error: Geolocation requires HTTPS or localhost.");
                 } else {
-                    $('.loader').hide();
                     alert(`ERROR(${err.code}): ${err.message}`);
                 }
             }
 
+            $('#branch').on('change', function () {
 
+
+                if ($(this).val() !== '') {
+                    $('#takePhotoButton').show();
+                }
+            });
 
             $('#photoInput').on('change', function () {
+                $('.loader').show();
                 if (this.files && this.files[0]) {
                     var file = this.files[0];
                     var reader = new FileReader();
@@ -117,8 +129,11 @@
                             previewImg.src = canvas.toDataURL('image/png');
                             previewImg.style.maxWidth = '100%';
                             preview.appendChild(previewImg);
+                            $('.loader').hide();
 
-                            // Convert canvas to blob for submission
+                            $('#submitButton').prop('disabled', false);
+
+                            
                             canvas.toBlob(function (blob) {
                                 var formData = new FormData();
                                 formData.append('photo', blob, 'photo.png');
@@ -128,22 +143,34 @@
                                 formData.append('longitude', longitude);
                                 formData.append('place', address);
                                 formData.append('employee_id', employeeId);
-                                formData.append('employee_name', employeeName);
+                                formData.append('name', employeeName);
 
-                                $.ajax({
-                                    url: '', // Your form action URL
-                                    type: 'POST',
-                                    data: formData,
-                                    processData: false,
-                                    contentType: false,
-                                    success: function (response) {
-                                        // Handle success
-                                        alert('Form submitted successfully!');
-                                    },
-                                    error: function (response) {
-                                        // Handle error
-                                        alert('Failed to submit the form.');
-                                    }
+                                // function logFormData(formData) {
+                                //     for (var pair of formData.entries()) {
+                                //         console.log(pair[0] + ': ' + pair[1]);
+                                //     }
+                                // }
+                               
+                                // logFormData(formData);
+
+                                $('#attendanceForm').on('submit', function (e) {
+                                    e.preventDefault();
+                                    $.ajax({
+                                        url: '{{route('storephoto')}}',
+                                        type: 'POST',
+                                        data: formData,
+                                        processData: false,
+                                        contentType: false,
+                                        success: function (response) {
+                                            console.log(response);
+                                            // Handle success
+                                            alert('Form submitted successfully!');
+                                        },
+                                        error: function (response) {
+                                            // Handle error
+                                            alert('Failed to submit the form.');
+                                        }
+                                    });
                                 });
                             });
                         }
@@ -152,7 +179,7 @@
                     reader.readAsDataURL(file);
                 }
             });
-           
+
         });
     </script>
 @endpush
