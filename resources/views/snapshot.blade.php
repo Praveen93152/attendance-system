@@ -2,7 +2,7 @@
 
 @section('content')
 <h2 class="text-center">Take Daily Snapshot</h2>
-<form id="attendanceForm" class="row needs-validation" novalidate method="POST" action="" enctype="multipart/form-data">
+<form id="attendanceForm" class="row needs-validation" novalidate method="POST" action="{{ route('storephoto') }}" enctype="multipart/form-data">
     @csrf
 
     <div class="form-group mb-3">
@@ -162,13 +162,14 @@
                                         processData: false,
                                         contentType: false,
                                         success: function (response) {
-                                            console.log(response);
-                                            // Handle success
-                                            alert('Form submitted successfully!');
+                                            alert(response.message);
+                                            window.location.reload();
+
                                         },
                                         error: function (response) {
-                                            // Handle error
+                                            
                                             alert('Failed to submit the form.');
+                                            window.location.reload();
                                         }
                                     });
                                 });

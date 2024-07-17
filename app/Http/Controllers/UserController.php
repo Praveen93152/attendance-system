@@ -8,6 +8,10 @@ use App\Models\User;
 use App\Models\DailyUploadImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 
 
@@ -43,7 +47,7 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'Validation errors',
                 'errors' => $validator->errors()
-            ], 422);
+            ]);
         }
 
         // Split branch into its components
@@ -52,14 +56,16 @@ class UserController extends Controller
         // Calculate the distance
         $distance = $this->calculateDistance($branch_latitude, $branch_longitude, $request->latitude, $request->longitude);
 
-        if ($distance > 200) {
+        // p($distance);
+
+        if ($distance > 500) {
             return response()->json([
                 'message' => 'You are outside the location. Please go inside the location.',
-            ], 403);
+            ]);
         }
 
         // Save the photo
-        $photoPath = saveEmployeeImage($request->photo, $request->employee_id, $request->name);
+        $photoPath = $this->saveEmployeeImage($request->photo, $request->employee_id, $request->name);
 
         // Create the user record
         $user = DailyUploadImage::create([
@@ -72,7 +78,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Successfully submitted.',
-        ], 200);
+        ]);
     }
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
@@ -83,6 +89,43 @@ class UserController extends Controller
         $dist = rad2deg($dist);
         $miles = $dist * 60 * 1.1515;
         return ($miles * 1.609344 * 1000); // convert miles to meters
+    }
+
+    private function saveEmployeeImage($image, $emp_id, $emp_name)
+    {
+        $baseDir = 'public/employee_images';
+
+        // Get the current date components
+        $year = date('Y');
+        $month = Carbon::now()->format('F');
+        $day = date('d');
+
+        // Create the directory path
+        $directory = "$baseDir/$year/$month/$day";
+
+        // Ensure the directory exists
+        if (!Storage::exists($directory)) {
+            $created = Storage::makeDirectory($directory, 0755, true);
+
+        }
+
+        // Generate the filename
+        $timestamp = Carbon::now()->format('Ymd_His');
+
+        $fileExtension = $image->getClientOriginalExtension();
+        $sanitizedEmpName = Str::slug($emp_name); // Sanitize the emp_name to avoid invalid characters
+        $filename = "{$timestamp}_{$emp_id}_{$sanitizedEmpName}." . $fileExtension;
+
+        // Save the image
+        $path = $image->storeAs($directory, $filename);
+
+        if (!$path) {
+            Log::error("Failed to store image for employee_id: $emp_id, employee_name: $emp_name");
+            return null;
+        }
+
+        // Return the public path
+        return Storage::url($path);
     }
 
 }

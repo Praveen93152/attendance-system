@@ -25,6 +25,7 @@ Route::post('/submitphoto', [UserController::class, 'submitphoto'])->name('store
 
 ////////////////////admin routes////////////////////////////////
 Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+Route::post('/admin/search', [AdminController::class, 'search'])->name('admin.search');
 
 
 Route::get('/addemployee', [AdminController::class, 'addemployee'])->name('admin.addemployee');
