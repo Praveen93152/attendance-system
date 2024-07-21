@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('employee_name');
             $table->string('mobile_no', 10)->unique();
             $table->json('branch_ids')->nullable(); 
+            $table->string('role');
             $table->integer('max_pics')->default(5);
             $table->string('password');
             $table->timestamps();

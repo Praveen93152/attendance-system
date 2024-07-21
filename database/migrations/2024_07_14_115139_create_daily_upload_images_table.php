@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('client');
             $table->string('state');
             $table->string('branch');
+            $table->string('address')->nullable();
             $table->string('path');
             $table->timestamps();
         });

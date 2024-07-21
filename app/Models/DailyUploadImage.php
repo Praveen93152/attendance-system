@@ -14,5 +14,13 @@ class DailyUploadImage extends Model
         'state',
         'branch',
         'path',
+        'address',
     ];
+    protected $primaryKey = 'id';
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'employee_id', 'employee_code');
+    }
+
 }

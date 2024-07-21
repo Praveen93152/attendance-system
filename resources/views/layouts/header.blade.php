@@ -12,7 +12,7 @@
                 <a class="nav-link" href="{{route('admin.addemployee')}}">Add Employee</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{route('admin.addbranch')}}">Add Client</a>
+                <a class="nav-link" href="{{route('admin.addbranch')}}">Add Branch</a>
             </li>
         </ul>
     </div>

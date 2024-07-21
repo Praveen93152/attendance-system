@@ -20,9 +20,10 @@ class AuthController extends Controller
                 Auth::login($user);
                 Session::put('user_id', $user->id);
 
-                if ($user->id == 1) {
+                if ($user->role == 'admin') {
                     return redirect()->route('admin.dashboard');
                 } else {
+                    // p('hii1');
                     return redirect()->route('snap');
                 }
             }
@@ -56,22 +57,32 @@ class AuthController extends Controller
             return back()->withErrors(['password' => 'The provided password is incorrect.'])->withInput($request->all());
         }
 
-        Auth::login($user);
+        // Session::flush();
+        // Cookie::queue(Cookie::forget('user_id'));
 
+        Auth::login($user);
+        // Cookie::queue(Cookie::forget('user_id'));
         Session::put('user_id', $user->id);
         Cookie::queue('user_id', $user->id, 60 * 24 * 365 * 10);
 
 
-        if ($user->id == 1) {
+        if ($user->role == 'admin') {
             return redirect()->route('admin.dashboard');
         } else {
+            // p('hii');
             return redirect()->route('snap');
         }
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Session::flush();
+         Session::flush();
+        Auth::logout();
+        // $request->session()->invalidate();
+        // $request->session()->regenerateToken();
+        // Cookie::queue(Cookie::forget('user_id'));
+        // Session::flush();
+        // $request->session()->regenerateToken();
         return view('login');
     }
 

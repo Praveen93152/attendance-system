@@ -17,6 +17,7 @@ class User extends Authenticatable
         'employee_name',
         'mobile_no',
         'branch_ids',
+        'role',
         'max_pics',
         'password',
     ];

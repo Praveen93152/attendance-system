@@ -4,16 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use App\Models\DailyUploadImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Response;
+use ZipArchive;
 
 use function Pest\Laravel\json;
 
 class AdminController extends Controller
 {
+
+    //////////////////////////////////////////dashboard/////////////////////////////////////////////////////
     public function index()
     {
         $states = DB::table('branches')
@@ -44,20 +49,19 @@ class AdminController extends Controller
             'to_date' => 'nullable|date|after_or_equal:from_date',
         ]);
 
-        // Ensure at least one field is filled
         $atLeastOne = $request->only(['admin_Client', 'admin_state', 'admin_branch', 'emp_code', 'emp_name', 'emp_mobile', 'from_date', 'to_date']);
         if (count(array_filter($atLeastOne)) === 0) {
             return response()->json(['error' => 'At least one search field is required.'], 400);
         }
 
-        $query = DailyUploadImage::query();
+        $query = DailyUploadImage::query()->select('daily_upload_images.*', 'users.employee_name')
+            ->join('users', 'daily_upload_images.employee_id', '=', 'users.employee_code');
 
         if ($request->filled('admin_Client')) {
             $query->whereIn('client', $request->admin_Client);
         }
 
         if ($request->filled('admin_state')) {
-            // p("hi");
             $query->whereIn('state', $request->admin_state);
         }
 
@@ -66,34 +70,87 @@ class AdminController extends Controller
         }
 
         if ($request->filled('emp_code')) {
-            // p("hi");
             $query->where('employee_id', $request->emp_code);
-
-            // $query->whereHas('user', function ($query) use ($request) {
-            //     $query->where('employee_code', $request->emp_code);
-            // });
         }
 
         if ($request->filled('emp_name')) {
-            $query->whereHas('user', function ($query) use ($request) {
-                $query->where('employee_name', 'like', '%' . $request->emp_name . '%');
-            });
+            $user = User::where('employee_name', 'like', '%' . $request->emp_name . '%')->first();
+            if (!$user) {
+                return response()->json(['results' => 'User not found']);
+            } else {
+                $emp_code = $user->employee_code;
+                $query->where('employee_id', $emp_code);
+            }
         }
 
         if ($request->filled('emp_mobile')) {
-            $query->whereHas('user', function ($query) use ($request) {
-                $query->where('mobile_no', $request->emp_mobile);
-            });
+            $user = User::where('mobile_no', $request->emp_mobile)->first();
+            if (!$user) {
+                return response()->json(['results' => 'User not found']);
+            } else {
+                $emp_code = $user->employee_code;
+                $query->where('employee_id', $emp_code);
+            }
+        }
+
+        if ($request->filled('from_date') && empty($request->to_date)) {
+            $query->whereDate('daily_upload_images.created_at', $request->from_date);
+        }
+
+        if ($request->filled('to_date') && empty($request->from_date)) {
+            $query->whereDate('daily_upload_images.created_at', '<=', $request->to_date);
         }
 
         if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+            $query->whereBetween('daily_upload_images.created_at', [$request->from_date, $request->to_date]);
         }
 
         $results = $query->get();
 
+        // p($results->toArray());
+
         return response()->json(['results' => $results]);
     }
+
+    public function downloadImage(Request $request)
+    {
+        $path = $request->query('path');
+        // $path = ltrim($path, '/');
+        // p($path);
+
+        if (!Storage::exists($path)) {
+            abort(404);
+        }
+
+        return Storage::download($path);
+    }
+
+    public function downloadAllImages(Request $request)
+    {
+        $paths = json_decode($request->query('paths'), true);
+
+        if (empty($paths)) {
+            return response()->json(['error' => 'No images to download.'], 400);
+        }
+
+        $zip = new ZipArchive;
+        $zipFileName = 'images.zip';
+        $zipPath = storage_path($zipFileName);
+
+        if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
+            foreach ($paths as $path) {
+                if (Storage::exists($path)) {
+                    $zip->addFile(storage_path('app/' . $path), basename($path));
+                }
+            }
+            $zip->close();
+        } else {
+            return response()->json(['error' => 'Failed to create zip file.'], 500);
+        }
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
+    }
+
 
 
 
@@ -112,7 +169,6 @@ class AdminController extends Controller
             'employee_name' => 'required|string|max:255',
             'mobile_no' => 'required|unique:users,mobile_no',
             'clients' => 'required|array',
-            'clients.*' => 'string',
             'state' => 'required|string',
             'branch' => 'required|array',
             'password' => 'required|string|confirmed|min:8',
@@ -122,16 +178,12 @@ class AdminController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        // dd($request->branch);
-
-        // p($request->branch);
-        $branchIds = array_map('intval', $request->branch);//convert to intiger
-
         $user = User::create([
             'employee_code' => $request->employee_code,
             'employee_name' => $request->employee_name,
             'mobile_no' => $request->mobile_no,
-            'branch_ids' => json_encode($branchIds),
+            'branch_ids' => $request->branch,
+            'role' => 'rc',
             'password' => Hash::make($request->password),
         ]);
 
@@ -159,12 +211,45 @@ class AdminController extends Controller
         return response()->json($branches);
     }
 
-    ///////////////////////////add branch/////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////add branch////////////////////////////////////////////
 
 
     public function addbranch()
     {
-        p('addbranch');
+        return view('addbranch');
     }
+
+    public function addBranchPost(Request $request)
+    {
+        $request->validate([
+            'clients' => 'required|string',
+            'state' => 'required|string',
+            'branch' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90|regex:/^\d+(\.\d{1,8})?$/',
+            'longitude' => 'required|numeric|between:-180,180|regex:/^\d+(\.\d{1,8})?$/',
+        ]);
+
+        // Check if the branch with the same client, state, and branch already exists
+        $exists = Branch::where('client_name', $request->input('clients'))
+            ->where('state', $request->input('state'))
+            ->where('branch', $request->input('branch'))
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->withErrors(['error' => 'This branch already exists.']);
+        }
+
+        // Create a new record if no duplicates are found
+        Branch::create([
+            'client_name' => $request->input('clients'),
+            'state' => $request->input('state'),
+            'branch' => $request->input('branch'),
+            'latitude' => $request->input('latitude'),
+            'longitude' => $request->input('longitude'),
+        ]);
+
+        return redirect()->back()->with('success', 'Branch details added successfully.');
+    }
+
 }
 

@@ -2,14 +2,14 @@
 
 @section('content')
 <h2 class="text-center">Take Daily Snapshot</h2>
-<form id="attendanceForm" class="row needs-validation" novalidate method="POST" action="{{ route('storephoto') }}" enctype="multipart/form-data">
+<form id="attendanceForm" class="row needs-validation" novalidate method="POST" action="{{ route('storephoto') }}"
+    enctype="multipart/form-data">
     @csrf
 
     <div class="form-group mb-3">
         <label class="form-label" for="branch">Branch<span class="text-danger">*</span></label>
         <select id="branch" name="branch" class="form-control">
             <option value="" disabled selected>select branch</option>
-
             @foreach ($branches as $branch)
                 <option
                     value="{{$branch['client_name'] . '_' . $branch['state'] . '_' . $branch['branch'] . '_' . $branch['latitude'] . '_' . $branch['longitude']}}">
@@ -133,28 +133,21 @@
 
                             $('#submitButton').prop('disabled', false);
 
-                            
-                            canvas.toBlob(function (blob) {
-                                var formData = new FormData();
-                                formData.append('photo', blob, 'photo.png');
-                                formData.append('_token', $('input[name=_token]').val());
-                                formData.append('branch', $('#branch').val());
-                                formData.append('latitude', latitude);
-                                formData.append('longitude', longitude);
-                                formData.append('place', address);
-                                formData.append('employee_id', employeeId);
-                                formData.append('name', employeeName);
 
-                                // function logFormData(formData) {
-                                //     for (var pair of formData.entries()) {
-                                //         console.log(pair[0] + ': ' + pair[1]);
-                                //     }
-                                // }
-                               
-                                // logFormData(formData);
+                            canvas.toBlob(function (blob) {
 
                                 $('#attendanceForm').on('submit', function (e) {
                                     e.preventDefault();
+                                    var formData = new FormData();
+                                    formData.append('photo', blob, 'photo.png');
+                                    formData.append('_token', $('input[name=_token]').val());
+                                    formData.append('branch', $('#branch').val());
+                                    formData.append('latitude', latitude);
+                                    formData.append('longitude', longitude);
+                                    formData.append('place', address);
+                                    formData.append('employee_id', employeeId);
+                                    formData.append('name', employeeName);
+                                  
                                     $.ajax({
                                         url: '{{route('storephoto')}}',
                                         type: 'POST',
@@ -162,14 +155,16 @@
                                         processData: false,
                                         contentType: false,
                                         success: function (response) {
+
+                                            console.log(response);
                                             alert(response.message);
                                             window.location.reload();
 
                                         },
                                         error: function (response) {
-                                            
+
                                             alert('Failed to submit the form.');
-                                            window.location.reload();
+                                            // window.location.reload();
                                         }
                                     });
                                 });

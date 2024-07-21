@@ -5,7 +5,7 @@
 @include('layouts.header')
 <h2 class="text-center">Admin Panel</h2>
 
-<form id="adminSearchForm" class="row" method="POST" >
+<form id="adminSearchForm" class="row" method="POST">
     @csrf
     <div class="row mb-4">
         <!-- First row with three columns -->
@@ -43,6 +43,7 @@
                     @foreach ($branches as $branch)
                         <option value="{{ $branch->id }}">{{ $branch->branch }}</option>
                     @endforeach
+                    <option value="Field">Field</option>
                 </select>
             </div>
         </div>
@@ -75,7 +76,8 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="from_date">From Date</label>
-                <input type="date" id="from_date" name="from_date" class="form-control" max="{{ date('Y-m-d') }}">
+                <input type="date" id="from_date" name="from_date" class="form-control" max="{{ date('Y-m-d') }}"
+                    value="{{ date('Y-m-d') }}">
             </div>
         </div>
         <div class="col-md-4">
@@ -119,6 +121,25 @@
         .btn-block {
             width: 100%;
         }
+
+        p {
+            margin: 0px;
+        }
+
+        .download-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .download-all-btn {
+            margin-bottom: 10px;
+        }
     </style>
 @endpush
 
@@ -134,7 +155,6 @@
     <script>
         $(document).ready(function () {
             $('#adminSearchFormButton').click(function (e) {
-               // alert("xsjsjds")
                 e.preventDefault();
                 var formData = $('#adminSearchForm').serialize();
 
@@ -146,34 +166,46 @@
                         $('#adminResult').empty();
                     },
                     success: function (data) {
-
-
-                        // console.log(typeof data);
-                        // console.log(data);
                         if (data.results.length > 0) {
-
-                            console.log(data.results);
-                            var resultsHtml = '';
+                            var resultsHtml = '<button id="downloadAllBtn" class="btn btn-success download-all-btn">Download All</button>';
+                            resultsHtml += '<div class="row">';
+                            
                             $.each(data.results, function (index, result) {
-                                resultsHtml += '<div class="col-md-3 mb-4">' +
+                                resultsHtml += '<div class="col-md-6 mb-4">' +
                                     '<div class="card">' +
                                     '<img src="' + result.path + '" class="card-img-top" alt="Image">' +
+                                    '<button class="download-btn" data-path="' + result.path + '">Download</button>' +
                                     '<div class="card-body">' +
-                                    '<h5 class="card-title">Client: ' + result.client + '</h5>' +
+                                    '<h5 class="card-text">Client: ' + result.client + '</h5>' +
                                     '<p class="card-text">State: ' + result.state + '</p>' +
                                     '<p class="card-text">Branch: ' + result.branch + '</p>' +
-                                    '<p class="card-text">Uploaded by: ' + (result.employee_id || 'Unknown') + '</p>' +
+                                    '<p class="card-text">Address: ' + result.address + '</p>' +
+                                    '<p class="card-text">Uploaded by: ' + result.employee_name + '</p>' +
                                     '</div>' +
                                     '</div>' +
                                     '</div>';
                             });
+                            resultsHtml += '</div>';
                             $('#adminResult').html(resultsHtml);
+
+                            // Download individual image
+                            $('.download-btn').click(function() {
+                                var path = $(this).data('path');
+                                window.location.href = '{{ route("download.image") }}?path=' + encodeURIComponent(path);
+                            });
+
+                            // Download all images
+                            $('#downloadAllBtn').click(function() {
+                                var paths = data.results.map(result => result.path);
+                                window.location.href = '{{ route("download.allImages") }}?paths=' + encodeURIComponent(JSON.stringify(paths));
+                            });
+
                         } else {
                             $('#adminResult').html('<div class="col-12"><p class="text-center">No results found.</p></div>');
                         }
                     },
-                    error: function (xhr) {
-                        console.log(xhr.responseText);
+                    error: function () {
+                        $('#adminResult').html('<div class="col-12"><p class="text-center">An error occurred while fetching the results.</p></div>');
                     }
                 });
             });

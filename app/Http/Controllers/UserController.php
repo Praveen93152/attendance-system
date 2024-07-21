@@ -26,47 +26,55 @@ class UserController extends Controller
         } else {
             $branches = collect();
         }
-
-        // p($branches);
+       
         return view('snapshot', ['branches' => $branches]);
     }
 
     public function submitphoto(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-            'branch' => 'required|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'place' => 'required|string',
-            'employee_id' => 'required|string',
-            'name' => 'required|string'
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation errors',
-                'errors' => $validator->errors()
-            ]);
+        // $validator = Validator::make($request->all(), [
+        //     'photo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+        //     'branch' => 'required|string',
+        //     'latitude' => 'required|numeric',
+        //     'longitude' => 'required|numeric',
+        //     'place' => 'required|string',
+        //     'employee_id' => 'required|string',
+        //     'name' => 'required|string'
+        // ]);
+
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'message' => 'Validation errors',
+        //         'errors' => $validator->errors()
+        //     ]);
+        // }
+
+        $parts = explode('_', $request->branch);
+
+        if (count($parts) == 3) {
+            list($client_name, $state, $branch) = $parts;
+            $branch_latitude = null;
+            $branch_longitude = null;
+        } else {
+            list($client_name, $state, $branch, $branch_latitude, $branch_longitude) = $parts;
         }
 
-        // Split branch into its components
-        list($client_name, $state, $branch, $branch_latitude, $branch_longitude) = explode('_', $request->branch);
 
-        // Calculate the distance
-        $distance = $this->calculateDistance($branch_latitude, $branch_longitude, $request->latitude, $request->longitude);
-
-        // p($distance);
-
-        if ($distance > 500) {
-            return response()->json([
-                'message' => 'You are outside the location. Please go inside the location.',
-            ]);
+        if ($branch != "Field") {
+            // Calculate the distance
+            $distance = $this->calculateDistance($branch_latitude, $branch_longitude, $request->latitude, $request->longitude);
+            if ($distance > 500) {
+                return response()->json([
+                    'message' => 'You are outside the location. Please go inside the location.',
+                ]);
+            }
         }
 
         // Save the photo
         $photoPath = $this->saveEmployeeImage($request->photo, $request->employee_id, $request->name);
 
+        
         // Create the user record
         $user = DailyUploadImage::create([
             'employee_id' => $request->employee_id,
@@ -74,6 +82,7 @@ class UserController extends Controller
             'state' => $state,
             'branch' => $branch,
             'path' => $photoPath,
+            'address'=>$request->place
         ]);
 
         return response()->json([
@@ -116,15 +125,15 @@ class UserController extends Controller
         $sanitizedEmpName = Str::slug($emp_name); // Sanitize the emp_name to avoid invalid characters
         $filename = "{$timestamp}_{$emp_id}_{$sanitizedEmpName}." . $fileExtension;
 
-        // Save the image
         $path = $image->storeAs($directory, $filename);
+
+
 
         if (!$path) {
             Log::error("Failed to store image for employee_id: $emp_id, employee_name: $emp_name");
             return null;
         }
 
-        // Return the public path
         return Storage::url($path);
     }
 
