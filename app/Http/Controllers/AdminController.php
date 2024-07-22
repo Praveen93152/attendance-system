@@ -115,14 +115,18 @@ class AdminController extends Controller
     public function downloadImage(Request $request)
     {
         $path = $request->query('path');
-        // $path = ltrim($path, '/');
-        // p($path);
 
-        if (!Storage::exists($path)) {
-            abort(404);
+
+        $path = str_replace('/storage', '', $path);
+
+
+        $disk = Storage::disk('public');
+
+        if (!$disk->exists($path)) {
+            abort(404, 'File not found.');
+        } else {
+            return $disk->download($path);
         }
-
-        return Storage::download($path);
     }
 
     public function downloadAllImages(Request $request)
@@ -135,12 +139,19 @@ class AdminController extends Controller
 
         $zip = new ZipArchive;
         $zipFileName = 'images.zip';
-        $zipPath = storage_path($zipFileName);
+        $zipPath = storage_path('app/' . $zipFileName);
 
         if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
             foreach ($paths as $path) {
-                if (Storage::exists($path)) {
-                    $zip->addFile(storage_path('app/' . $path), basename($path));
+               
+                $path = str_replace('/storage', '', $path);
+
+            
+                if (Storage::disk('public')->exists($path)) {
+                    $absolutePath = storage_path('app/public/' . $path);
+                    $zip->addFile($absolutePath, basename($path));
+                } else {
+                    return response()->json(['error' => "File does not exist: {$path}"], 404);
                 }
             }
             $zip->close();
@@ -150,6 +161,7 @@ class AdminController extends Controller
 
         return response()->download($zipPath)->deleteFileAfterSend(true);
     }
+
 
 
 

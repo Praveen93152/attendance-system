@@ -140,6 +140,10 @@
         .download-all-btn {
             margin-bottom: 10px;
         }
+        .total{
+            font-size: 24px;
+            color: green;
+        }
     </style>
 @endpush
 
@@ -168,6 +172,7 @@
                     success: function (data) {
                         if (data.results.length > 0) {
                             var resultsHtml = '<button id="downloadAllBtn" class="btn btn-success download-all-btn">Download All</button>';
+                            resultsHtml+='<div class="total">Total Photes:'+data.results.length+'</div>';
                             resultsHtml += '<div class="row">';
                             
                             $.each(data.results, function (index, result) {
