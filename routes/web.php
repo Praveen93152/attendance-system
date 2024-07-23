@@ -31,19 +31,29 @@ Route::middleware(['auth', ValidRc::class])->group(function () {
 
 Route::middleware(['auth', ValidAdmin::class])->group(function () {
 
+    ///////////////////////////////////////dashboard routes//////////////////////////////////////////////
+
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::post('/admin/search', [AdminController::class, 'search'])->name('admin.search');
     Route::get('/download-image', [AdminController::class, 'downloadImage'])->name('download.image');
     Route::get('/download-all-images', [AdminController::class, 'downloadAllImages'])->name('download.allImages');
 
-
+    ////////////////////////////////////add employee/////////////////////////////////////////////////////
 
     Route::get('/addemployee', [AdminController::class, 'addemployee'])->name('admin.addemployee');
     Route::post('/addemployee', [AdminController::class, 'store'])->name('admin.addemployee_post');
     Route::post('/getstates', [AdminController::class, 'getStates'])->name('admin.getstates');
     Route::post('/getbranch', [AdminController::class, 'getBranches'])->name('admin.getbranchs');
 
+    /////////////////////////////////////add branch///////////////////////////////////////////////////////
 
     Route::get('/addbranch', [AdminController::class, 'addbranch'])->name('admin.addbranch');
     Route::post('/addbranch', [AdminController::class, 'addBranchPost'])->name('admin.addbranchpost');
+
+    //////////////////////////////////////////add client/////////////////////////////////////////////////
+
+    Route::get('/addclient', [AdminController::class, 'addclient'])->name('admin.addclient');
+    Route::post('/addclient', [AdminController::class, 'addClientPost'])->name('admin.addclientpost');
+
+
 });

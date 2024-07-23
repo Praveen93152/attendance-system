@@ -15,10 +15,9 @@
                 <select id="admin_Client" name="admin_Client[]" class="form-control selectpicker" multiple
                     data-live-search="true" data-actions-box="true">
                     <option value="">Select Client</option>
-                    <option value="Fusion Microfinance" {{ in_array('Fusion Microfinance', old('admin_Client', [])) ? 'selected' : '' }}>Fusion Microfinance</option>
-                    <option value="Sindhuja Finance" {{ in_array('Sindhuja Finance', old('admin_Client', [])) ? 'selected' : '' }}>Sindhuja Finance</option>
-                    <option value="Swara Fincare" {{ in_array('Swara Fincare', old('admin_Client', [])) ? 'selected' : '' }}>Swara Fincare</option>
-                    <option value="Seeds Fincap" {{ in_array('Seeds Fincap', old('admin_Client', [])) ? 'selected' : '' }}>Seeds Fincap</option>
+                    @foreach ($clients as $client)
+                        <option value="{{ $client->clients }}">{{ $client->clients }}</option>
+                    @endforeach
                 </select>
             </div>
         </div>

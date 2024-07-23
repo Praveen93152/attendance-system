@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\User;
+use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use App\Models\DailyUploadImage;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,7 @@ class AdminController extends Controller
     //////////////////////////////////////////dashboard/////////////////////////////////////////////////////
     public function index()
     {
+       $clients=Client::select('clients')->get();;
         $states = DB::table('branches')
             ->select('id', 'state')
             ->whereIn('id', function ($query) {
@@ -32,7 +34,7 @@ class AdminController extends Controller
             ->get();
         $branches = Branch::select('id', 'branch')->distinct('branch')->orderBy('branch', 'asc')->get();
         // p($branches->toArray());
-        return view('admin', ['states' => $states, 'branches' => $branches, 'results' => collect()]);
+        return view('admin', ['states' => $states, 'branches' => $branches,'clients'=>$clients,'results' => collect()]);
     }
 
 
@@ -143,10 +145,10 @@ class AdminController extends Controller
 
         if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
             foreach ($paths as $path) {
-               
+
                 $path = str_replace('/storage', '', $path);
 
-            
+
                 if (Storage::disk('public')->exists($path)) {
                     $absolutePath = storage_path('app/public/' . $path);
                     $zip->addFile($absolutePath, basename($path));
@@ -201,7 +203,6 @@ class AdminController extends Controller
 
         return redirect()->route('admin.addemployee_post')->with('success', 'Employee added successfully');
     }
-
 
 
     public function getStates(Request $request)
@@ -263,5 +264,24 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Branch details added successfully.');
     }
 
+    //////////////////////////////////////////////////////add client////////////////////////////////////////////
+
+    public function addclient()
+    {
+        return view('addclient');
+    }
+
+    public function addClientPost(Request $request)
+    {
+
+        $request->validate([
+            'client_name' => 'required|unique:clients,clients',
+        ]);
+
+        Client::create([
+            'clients' => $request->input('client_name'),
+        ]);
+        return redirect()->back()->with('success', 'Branch details added successfully.');
+    }
 }
 
