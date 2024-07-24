@@ -185,7 +185,7 @@ class AdminController extends Controller
             'clients' => 'required|array',
             'state' => 'required|string',
             'branch' => 'required|array',
-            'password' => 'required|string|confirmed|min:8',
+            // 'password' => 'required|string|confirmed|min:8',
         ]);
 
         if ($validator->fails()) {
@@ -198,7 +198,7 @@ class AdminController extends Controller
             'mobile_no' => $request->mobile_no,
             'branch_ids' => $request->branch,
             'role' => 'rc',
-            'password' => Hash::make($request->password),
+            // 'password' => Hash::make($request->password),
         ]);
 
         return redirect()->route('admin.addemployee_post')->with('success', 'Employee added successfully');

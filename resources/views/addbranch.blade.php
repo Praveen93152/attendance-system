@@ -102,6 +102,21 @@
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>
+        <div class="card shadow-sm p-4 my-5">
+            <h2 class="text-center">For Bulk Upload</h2>
+            <div class="form-row d-flex gap-2">
+                <div class="form-group col-md-12 d-flex align-items-center gap-2">
+                    <input type="file" class="form-control">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+            <div class="form-row d-flex gap-2 mt-2">
+                <div class="form-group col-md-12 d-flex gap-2">
+                    <a href="#" class="btn btn-link">Download sample data</a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 

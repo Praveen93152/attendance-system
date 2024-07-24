@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('branch_ids')->nullable(); 
             $table->string('role');
             $table->integer('max_pics')->default(5);
-            $table->string('password');
+            $table->string('password')->default('$2y$12$Btz7xvxvzXBUGo5/o9CaVuSprkGh9ggoLxq0HrtoPGEEQI7F5u.um');
             $table->timestamps();
         });
     }

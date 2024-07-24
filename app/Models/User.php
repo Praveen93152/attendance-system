@@ -19,14 +19,14 @@ class User extends Authenticatable
         'branch_ids',
         'role',
         'max_pics',
-        'password',
+        // 'password',
     ];
 
    
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    // protected $hidden = [
+    //     'password',
+    //     'remember_token',
+    // ];
     protected $casts = [
         'branch_ids' => 'array', 
     ];

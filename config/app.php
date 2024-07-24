@@ -123,4 +123,19 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'providers' => [
+        // Other Service Providers...
+
+        Illuminate\Filesystem\FilesystemServiceProvider::class,
+        Illuminate\Cache\CacheServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+    ],
+
+    'aliases' => [
+        // Other aliases...
+
+        'File' => Illuminate\Support\Facades\File::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+    ],
+
 ];
