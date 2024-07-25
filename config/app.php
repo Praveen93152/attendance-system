@@ -123,19 +123,21 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'providers' => [
-        // Other Service Providers...
+    // 'providers' => [
+    //     // Other Service Providers...
 
-        Illuminate\Filesystem\FilesystemServiceProvider::class,
-        Illuminate\Cache\CacheServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
-    ],
+    //     Illuminate\Filesystem\FilesystemServiceProvider::class,
+    //     Illuminate\Cache\CacheServiceProvider::class,
+    //     // Maatwebsite\Excel\ExcelServiceProvider::class,
+    // ],
 
-    'aliases' => [
-        // Other aliases...
+    // 'aliases' => [
+    //     // Other aliases...
 
-        'File' => Illuminate\Support\Facades\File::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-    ],
+    //     'File' => Illuminate\Support\Facades\File::class,
+    //     'Cache' => Illuminate\Support\Facades\Cache::class,
+
+    //     // 'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+    // ],
 
 ];
