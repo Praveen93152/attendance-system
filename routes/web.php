@@ -45,10 +45,16 @@ Route::middleware(['auth', ValidAdmin::class])->group(function () {
     Route::post('/getstates', [AdminController::class, 'getStates'])->name('admin.getstates');
     Route::post('/getbranch', [AdminController::class, 'getBranches'])->name('admin.getbranchs');
 
+    Route::get('/download-branch-codes', [AdminController::class, 'downloadBranchCodes'])->name('download.branch.codes');
+    Route::get('/download-employee-sample-data', [AdminController::class, 'downloadEmployeeSampleData'])->name('download.employee.sample.data');
+    Route::post('/uploademployeedata', [AdminController::class, 'uploademployeedata'])->name('upload.employee.data');
+
     /////////////////////////////////////add branch///////////////////////////////////////////////////////
 
     Route::get('/addbranch', [AdminController::class, 'addbranch'])->name('admin.addbranch');
     Route::post('/addbranch', [AdminController::class, 'addBranchPost'])->name('admin.addbranchpost');
+    Route::get('/download-branches-sample-data', [AdminController::class, 'downloadBranchSampleData'])->name('download.Branch.sample.data');
+
 
     //////////////////////////////////////////add client/////////////////////////////////////////////////
 

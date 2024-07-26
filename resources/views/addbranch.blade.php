@@ -112,7 +112,7 @@
             </div>
             <div class="form-row d-flex gap-2 mt-2">
                 <div class="form-group col-md-12 d-flex gap-2">
-                    <a href="#" class="btn btn-link">Download sample data</a>
+                    <a href="{{route('download.Branch.sample.data')}}" class="btn btn-link">Download sample data</a>
                 </div>
             </div>
         </div>

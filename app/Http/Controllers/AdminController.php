@@ -12,7 +12,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BranchesExport;
+use App\Imports\EmployeeImport;
 use ZipArchive;
+use Exception;
 
 use function Pest\Laravel\json;
 
@@ -22,7 +27,8 @@ class AdminController extends Controller
     //////////////////////////////////////////dashboard/////////////////////////////////////////////////////
     public function index()
     {
-       $clients=Client::select('clients')->get();;
+        $clients = Client::select('clients')->get();
+        ;
         $states = DB::table('branches')
             ->select('id', 'state')
             ->whereIn('id', function ($query) {
@@ -34,7 +40,7 @@ class AdminController extends Controller
             ->get();
         $branches = Branch::select('id', 'branch')->distinct('branch')->orderBy('branch', 'asc')->get();
         // p($branches->toArray());
-        return view('admin', ['states' => $states, 'branches' => $branches,'clients'=>$clients,'results' => collect()]);
+        return view('admin', ['states' => $states, 'branches' => $branches, 'clients' => $clients, 'results' => collect()]);
     }
 
 
@@ -224,6 +230,47 @@ class AdminController extends Controller
         return response()->json($branches);
     }
 
+    public function downloadBranchCodes()
+    {
+        return Excel::download(new BranchesExport, 'branch_codes.xlsx');
+    }
+
+    public function downloadEmployeeSampleData()
+    {
+        $filePath = public_path('sample files/sample data for employee data upload.xlsx');
+
+        if (!file_exists($filePath)) {
+            return response()->json(['error' => 'File not found.'], 404);
+        }
+
+        return response()->download($filePath);
+    }
+
+
+    public function uploadEmployeeData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            Excel::import(new EmployeeImport, $request->file('file'));
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors());
+        } catch (\Exception $e) {
+            // Return with a general error message
+            return back()->withErrors(['file' => $e->getMessage()]);
+        }
+
+        return back()->with('success', 'Users imported successfully.');
+    }
+
+
+
     //////////////////////////////////////////////////////add branch////////////////////////////////////////////
 
 
@@ -262,6 +309,18 @@ class AdminController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Branch details added successfully.');
+    }
+
+    public function downloadBranchSampleData()
+    {
+
+        $filePath = public_path('sample files/sample data for branches data upload.xlsx');
+
+        if (!file_exists($filePath)) {
+            return response()->json(['error' => 'File not found.'], 404);
+        }
+
+        return response()->download($filePath);
     }
 
     //////////////////////////////////////////////////////add client////////////////////////////////////////////

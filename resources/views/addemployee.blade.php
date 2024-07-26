@@ -112,19 +112,35 @@
 
         <div class="card shadow-sm p-4 my-5">
             <h2 class="text-center">For Bulk Upload</h2>
-            <div class="form-row d-flex gap-2">
-                <div class="form-group col-md-12 d-flex align-items-center gap-2">
-                    <input type="file" class="form-control">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+            <form action="{{ route('upload.employee.data') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-row d-flex gap-2">
+                    <div class="form-group col-md-12 d-flex align-items-center gap-2">
+                        <input type="file" name="file" class="form-control @error('file') is-invalid @enderror">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                    @error('file')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
-            </div>
+            </form>
             <div class="form-row d-flex gap-2 mt-2">
                 <div class="form-group col-md-12 d-flex gap-2">
-                    <a href="#" class="btn btn-link">Download sample data</a>
-                    <a href="#" class="btn btn-link">Download branch codes</a>
+                    <a href="{{ route('download.employee.sample.data') }}" class="btn btn-link">Download sample data</a>
+                    <a href="{{ route('download.branch.codes') }}" class="btn btn-link">Download branch codes</a>
                 </div>
             </div>
+            @if (session('errors'))
+                <div class="alert alert-danger mt-3">
+                    <ul>
+                        @foreach (session('errors')->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
+
 
 
     </div>
