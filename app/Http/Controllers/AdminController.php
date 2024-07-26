@@ -16,6 +16,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BranchesExport;
 use App\Imports\EmployeeImport;
+use App\Imports\BranchImport;
 use ZipArchive;
 use Exception;
 
@@ -341,6 +342,29 @@ class AdminController extends Controller
             'clients' => $request->input('client_name'),
         ]);
         return redirect()->back()->with('success', 'Branch details added successfully.');
+    }
+
+    public function uploadbranchdata(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            Excel::import(new BranchImport, $request->file('file'));
+        } catch (ValidationException $e) {
+            // Return with all validation errors from the import
+            return back()->withErrors($e->errors());
+        } catch (\Exception $e) {
+            // Return with a general error message
+            return back()->withErrors(['file' => $e->getMessage()]);
+        }
+
+        return back()->with('success', 'Branches imported successfully.');
     }
 }
 

@@ -60,6 +60,7 @@ Route::middleware(['auth', ValidAdmin::class])->group(function () {
 
     Route::get('/addclient', [AdminController::class, 'addclient'])->name('admin.addclient');
     Route::post('/addclient', [AdminController::class, 'addClientPost'])->name('admin.addclientpost');
+    Route::post('/uploadbranchdata', [AdminController::class, 'uploadbranchdata'])->name('upload.branch.data');
 
 
 });
