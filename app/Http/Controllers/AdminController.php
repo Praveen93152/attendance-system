@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BranchesExport;
 use App\Imports\EmployeeImport;
 use App\Imports\BranchImport;
+use App\Exports\DailyUploadImagesExport;
 use ZipArchive;
 use Exception;
 
@@ -43,7 +44,6 @@ class AdminController extends Controller
         // p($branches->toArray());
         return view('admin', ['states' => $states, 'branches' => $branches, 'clients' => $clients, 'results' => collect()]);
     }
-
 
     public function search(Request $request)
     {
@@ -165,10 +165,43 @@ class AdminController extends Controller
         return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
+    public function exportbyexcel(Request $request)
+    {
+        $validatedData = $request->validate([
+            'admin_Client' => 'nullable|array',
+            'admin_state' => 'nullable|array',
+            'admin_branch' => 'nullable|array',
+            'emp_code' => 'nullable|string|max:255',
+            'emp_name' => 'nullable|string|max:255',
+            'emp_mobile' => 'nullable|string|max:255',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date|after_or_equal:from_date',
+        ]);
 
+        $atLeastOne = $request->only(['admin_Client', 'admin_state', 'admin_branch', 'emp_code', 'emp_name', 'emp_mobile', 'from_date', 'to_date']);
+        if (count(array_filter($atLeastOne)) === 0) {
+            return redirect()->back()->withErrors(['error' => 'At least one search field is required.']);
+        }
 
+        $query = DailyUploadImage::query()->select('daily_upload_images.*', 'users.employee_name')
+            ->join('users', 'daily_upload_images.employee_id', '=', 'users.employee_code');
 
+        // Add the same filtering logic as in the search method
 
+        $results = $query->get(['client', 'state', 'branch', 'employee_id', 'employee_name', 'path'])
+                        ->map(function($result) {
+                            return [
+                                'client' => $result->client,
+                                'state' => $result->state,
+                                'branch' => $result->branch,
+                                'employee_id' => $result->employee_id,
+                                'employee_name' => $result->employee_name,
+                                'image_file_name' => basename($result->path),
+                            ];
+                        });
+
+        return Excel::download(new DailyUploadImagesExport($results), 'images.xlsx');
+    }
 
     /////////////////////////////////////////add employee////////////////////////////////////////////////////////////
 
@@ -205,8 +238,6 @@ class AdminController extends Controller
 
         return redirect()->route('admin.addemployee_post')->with('success', 'Employee added successfully');
     }
-
-
     public function getStates(Request $request)
     {
         $clients = $request->input('clients');
@@ -241,7 +272,6 @@ class AdminController extends Controller
 
         return response()->download($filePath);
     }
-
 
     public function uploadEmployeeData(Request $request)
     {

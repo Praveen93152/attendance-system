@@ -38,6 +38,8 @@ Route::middleware(['auth', ValidAdmin::class])->group(function () {
     Route::post('/admin/search', [AdminController::class, 'search'])->name('admin.search');
     Route::get('/download-image', [AdminController::class, 'downloadImage'])->name('download.image');
     Route::get('/download-all-images', [AdminController::class, 'downloadAllImages'])->name('download.allImages');
+    Route::get('/exportbyexcel', [AdminController::class, 'exportbyexcel'])->name('download.excel');
+
 
     ////////////////////////////////////add employee/////////////////////////////////////////////////////
 
