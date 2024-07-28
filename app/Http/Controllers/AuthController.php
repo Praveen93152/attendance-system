@@ -63,29 +63,21 @@ class AuthController extends Controller
         Auth::login($user);
         // Cookie::queue(Cookie::forget('user_id'));
         Session::put('user_id', $user->id);
-        Cookie::queue('user_id', $user->id, 60 * 24 * 365 * 10);
-
+      
 
         if ($user->role == 'admin') {
             return redirect()->route('admin.dashboard');
         } else {
             // p('hii');
+            Cookie::queue('user_id', $user->id, 60 * 24 * 365 * 10);
             return redirect()->route('snap');
         }
     }
 
     public function logout(Request $request)
     {
-        //  Session::flush();
         Auth::logout();
-        // $request->session()->invalidate();
-        // $request->session()->regenerateToken();
-        // Cookie::queue(Cookie::forget('user_id'));
-        // Session::flush();
-        // $request->session()->regenerateToken();
         return view('login');
     }
-
-
 
 }

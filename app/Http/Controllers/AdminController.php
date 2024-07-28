@@ -188,7 +188,7 @@ class AdminController extends Controller
 
         // Add the same filtering logic as in the search method
 
-        $results = $query->get(['client', 'state', 'branch', 'employee_id', 'employee_name', 'path'])
+        $results = $query->get(['client', 'state', 'branch', 'employee_id', 'employee_name', 'path','created_at'])
                         ->map(function($result) {
                             return [
                                 'client' => $result->client,
@@ -197,6 +197,7 @@ class AdminController extends Controller
                                 'employee_id' => $result->employee_id,
                                 'employee_name' => $result->employee_name,
                                 'image_file_name' => basename($result->path),
+                                'date'=> $result->created_at,
                             ];
                         });
 

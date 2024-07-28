@@ -40,6 +40,9 @@
         .strip a:hover {
             background-color: #5a918b;
         }
+        .strip h2{
+            color: #fff
+        }
 
 
         .loader{
@@ -83,6 +86,7 @@
         <div class="loader1"></div>
     </div>
     <div class="strip">
+        <img src="{{public_path('image\novel-logo.png')}}" alt="">
         @if (Auth::check())
             <h2>Welcome {{Auth::user()->employee_name}}</h2>
             <a href="{{ route('logout') }}" class="button">Logout</a>

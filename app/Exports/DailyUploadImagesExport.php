@@ -29,6 +29,7 @@ class DailyUploadImagesExport implements FromCollection, WithHeadings
             'Employee ID',
             'Employee Name',
             'Image File Name',
+            'Date'
         ];
     }
 }
