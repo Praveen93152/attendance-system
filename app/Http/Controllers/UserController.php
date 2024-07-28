@@ -50,6 +50,13 @@ class UserController extends Controller
         //     ]);
         // }
 
+        if (Auth::user()->max_pics == 0) {
+            return response()->json([
+                'message' => 'You already submitted, try again tommorrow',
+            ]);
+        }
+
+
         $parts = explode('_', $request->branch);
 
         if (count($parts) == 3) {
@@ -84,6 +91,10 @@ class UserController extends Controller
             'path' => $photoPath,
             'address'=>$request->place
         ]);
+
+        Auth::user()->decrement('max_pics');
+
+        
 
         return response()->json([
             'message' => 'Successfully submitted.',
