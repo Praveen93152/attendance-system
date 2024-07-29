@@ -11,15 +11,15 @@
     @stack('styles')
     <style>
         .strip {
-            position: relative;
+            position:sticky;
             width: 100vw;
             height: 10vh;
-            background-color: #8bd8bd;
+            /* background-color: #adadad; */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #6ca7a0;
-            border-radius: 5px;
+            /* border: 1px solid #6ca7a0; */
+            /* border-radius: 5px; */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 0 20px;
         }
@@ -27,7 +27,7 @@
         .strip a {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #6ca7a0;
+            background-color: #8bd8bd;
             color: #fff;
             text-decoration: none;
             border: none;
@@ -40,12 +40,16 @@
         .strip a:hover {
             background-color: #5a918b;
         }
-        .strip h2{
-            color: #fff
+
+        .strip h2 {
+            color: #243665;
+            display: inline;
+            font-size: 18px;
+
         }
 
 
-        .loader{
+        .loader {
             display: none;
             position: fixed;
             top: 0px;
@@ -56,7 +60,11 @@
             background-color: rgba(0, 0, 0, 0.1);
         }
 
-        .loader1{
+        .strip img {
+            height: -webkit-fill-available;
+        }
+
+        .loader1 {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -85,12 +93,16 @@
     <div class="loader">
         <div class="loader1"></div>
     </div>
+
     <div class="strip">
-        <img src="{{public_path('image\novel-logo.png')}}" alt="">
-        @if (Auth::check())
-            <h2>Welcome {{Auth::user()->employee_name}}</h2>
-            <a href="{{ route('logout') }}" class="button">Logout</a>
-        @endif
+        <img src="{{asset('image\novel-logo.png')}}" alt="loading..">
+        <div>
+            @if (Auth::check())
+                <h2>Hi {{Auth::user()->employee_name}}</h2>
+                <a href="{{ route('logout') }}" class="button">Logout</a>
+
+            @endif
+        </div>
     </div>
 
     <div class="container mt-4">
